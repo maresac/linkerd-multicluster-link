@@ -2,6 +2,7 @@
 clusterLinks:
   # - name: workload-cluster-1
   #   gatewayAddress: 35.219.192.3
+  #   gatewayIdentity: linkerd-gateway.linkerd-multicluster.serviceaccount.identity.linkerd.cluster.local
   #   secretName: cluster-credentials-workload-cluster-1
   #   linkAnnotations:
   #     buoyant.cloud/target-cluster: workload-1
@@ -9,7 +10,10 @@ clusterLinks:
   #     iam.gke.io/gcp-service-account: linkerd-multicluster@my-gcp-project.iam.gserviceaccount.com
   - name: kind-workload
     gatewayAddress: 172.18.255.100
+    gatewayIdentity: linkerd-gateway.linkerd-multicluster.serviceaccount.identity.linkerd.cluster.local
     secretName: cluster-credentials-kind-workload
+    targetClusterDomain: cluster.local
+    targetClusterLinkerdNamespace: linkerd
 
 # Label key and value for Services in target clusters that should be mirrored in source cluster
 mirroredServiceLabel:

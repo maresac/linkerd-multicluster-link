@@ -14,7 +14,7 @@ metadata:
 spec:
   clusterCredentialsSecret: cluster-credentials-{{ .name }}
   gatewayAddress: {{ .gatewayAddress }}
-  gatewayIdentity: linkerd-gateway.linkerd-multicluster.serviceaccount.identity.linkerd.cluster.local
+  gatewayIdentity: {{ .gatewayIdentity | default "linkerd-gateway.linkerd-multicluster.serviceaccount.identity.linkerd.cluster.local" }}
   gatewayPort: "4143"
   probeSpec:
     path: /ready
@@ -23,7 +23,7 @@ spec:
   selector:
     matchLabels:
 {{- $label | nindent 6 }}
-  targetClusterDomain: cluster.local
-  targetClusterLinkerdNamespace: linkerd
+  targetClusterDomain: {{ .targetClusterDomain | default "cluster.local" }}
+  targetClusterLinkerdNamespace: {{ .targetClusterLinkerdNamespace | default "linkerd" }}
   targetClusterName: {{ .name }}
 {{- end }}

@@ -9,8 +9,11 @@ A Helm chart to support the `linkerd multicluster link` CLI command.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | clusterLinks[0].gatewayAddress | string | `"172.18.255.100"` |  |
+| clusterLinks[0].gatewayIdentity | string | `"linkerd-gateway.linkerd-multicluster.serviceaccount.identity.linkerd.cluster.local"` |  |
 | clusterLinks[0].name | string | `"kind-workload"` |  |
 | clusterLinks[0].secretName | string | `"cluster-credentials-kind-workload"` |  |
+| clusterLinks[0].targetClusterDomain | string | `"cluster.local"` |  |
+| clusterLinks[0].targetClusterLinkerdNamespace | string | `"linkerd"` |  |
 | linkerdVersion | string | `"stable-2.12.4"` |  |
 | mirroredServiceLabel.key | string | `"mirror.linkerd.io/exported"` |  |
 | mirroredServiceLabel.value | string | `"true"` |  |
