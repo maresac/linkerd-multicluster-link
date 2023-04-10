@@ -1,0 +1,86 @@
+{{- $namespace := .Release.Namespace }}
+{{- range .Values.clusterLinks }}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linkerd-service-mirror-access-local-resources-{{ .name }}
+  labels:
+    linkerd.io/extension: multicluster
+    linkerd.io/control-plane-component: service-mirror
+    mirror.linkerd.io/cluster-name: {{ .name }}
+rules:
+- apiGroups: [""]
+  resources: ["endpoints", "services"]
+  verbs: ["list", "get", "watch", "create", "delete", "update"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["list", "get", "watch"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linkerd-service-mirror-access-local-resources-{{ .name }}
+  labels:
+    linkerd.io/extension: multicluster
+    linkerd.io/control-plane-component: service-mirror
+    mirror.linkerd.io/cluster-name: {{ .name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: linkerd-service-mirror-access-local-resources-{{ .name }}
+subjects:
+- kind: ServiceAccount
+  name: linkerd-service-mirror-{{ .name }}
+  namespace: {{ $namespace }}
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linkerd-service-mirror-read-remote-creds-{{ .name }}
+  namespace: {{ $namespace }}
+  labels:
+      linkerd.io/extension: multicluster
+      linkerd.io/control-plane-component: service-mirror
+      mirror.linkerd.io/cluster-name: {{ .name }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["cluster-credentials-{{ .name }}"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["multicluster.linkerd.io"]
+    resources: ["links"]
+    verbs: ["list", "get", "watch"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: linkerd-service-mirror-read-remote-creds-{{ .name }}
+  namespace: {{ $namespace }}
+  labels:
+      linkerd.io/extension: multicluster
+      linkerd.io/control-plane-component: service-mirror
+      mirror.linkerd.io/cluster-name: {{ .name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: linkerd-service-mirror-read-remote-creds-{{ .name }}
+subjects:
+  - kind: ServiceAccount
+    name: linkerd-service-mirror-{{ .name }}
+    namespace: {{ $namespace }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: linkerd-service-mirror-{{ .name }}
+  namespace: {{ $namespace }}
+  labels:
+    linkerd.io/extension: multicluster
+    linkerd.io/control-plane-component: service-mirror
+    mirror.linkerd.io/cluster-name: {{ .name }}
+{{- with .serviceAccountAnnotations }}
+  annotations:
+{{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}

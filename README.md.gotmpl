@@ -1,0 +1,35 @@
+## Linkerd multi-cluster extra chart
+
+This chart contains resources related to our linkerd multi-cluster setup. Basically it serves two purposes:
+1. Deploy a `ServerAuthorization` resource which allows buoyant cloud to collect metrics from linkerd multi-cluster components
+2. Create `Link` resources and related components to connect clusters with linkerd.
+
+The target cluster `Links` have to be deployed in the source cluster, i.e. the cluster from which you want to be able to access services from other clusters.
+For each target cluster, the following values have to be provided:
+* `name` of the cluster, which should identify it among all other clusters 
+* `gatewayAddress`: external IP of the target cluster's gateway service. Find it here:
+  ```
+  kubectl -n linkerd-multicluster get svc linkerd-gateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}'
+  ```
+* `linkerdVersion`: version of linkerd deployed in cluster
+
+Since the linkerd service-mirror controller in the source cluster needs access to the target clusters' k8s API, it needs kubeconfigs for the target clusters.
+This chart deploys `VaultSecrets` referencing the kubeconfigs in Vault under `/app/linkerd-multicluster/kubeconfigs`. 
+So if you want to add a new cluster, run the following command in the new cluster with the name `<target>`:
+```
+export TARGET=<target>
+linkerd multicluster link --cluster-name=$TARGET | yq eval '.data.kubeconfig' - | cut -d$'\n' -f1 | base64 -d > /tmp/$TARGET-kubeconfig
+```
+Save the output in the source cluster's Vault namespace:
+```
+export VAULT_NAMESPACE=<source-vault-namespace>
+vault kv patch /app/linkerd-multicluster/kubeconfigs $TARGET=@/tmp/$TARGET-kubeconfig
+```
+
+**_!! ATTENTION !!_**
+* Whenever the target cluster's loadbalancer IP changes, you need to redeploy this chart with the updated IP.
+* Whenever the target cluster's kubeconfig changes, update the kubeconfig in the source's Vault namespace, too.
+
+
+{{ template "chart.valuesSection" . }}
+

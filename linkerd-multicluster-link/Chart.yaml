@@ -1,0 +1,6 @@
+apiVersion: v2
+name: linkerd-multicluster-link
+description: A Helm chart to support the `linkerd multicluster link` CLI command.
+type: application
+version: 0.1.0
+appVersion: 0.1.0

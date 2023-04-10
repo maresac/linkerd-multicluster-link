@@ -1,0 +1,19 @@
+# A list of target clusters for which link resources will be deployed
+clusterLinks:
+  # - name: workload-cluster-1
+  #   gatewayAddress: 35.219.192.3
+  #   secretName: cluster-credentials-workload-cluster-1
+  #   linkAnnotations:
+  #     buoyant.cloud/target-cluster: workload-1
+  #   serviceAccountAnnotations:
+  #     iam.gke.io/gcp-service-account: linkerd-multicluster@my-gcp-project.iam.gserviceaccount.com
+  - name: kind-workload
+    gatewayAddress: 172.18.255.100
+    secretName: cluster-credentials-kind-workload
+
+# Label key and value for Services in target clusters that should be mirrored in source cluster
+mirroredServiceLabel:
+  key: mirror.linkerd.io/exported
+  value: "true"
+
+linkerdVersion: stable-2.12.4

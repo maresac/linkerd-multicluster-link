@@ -1,0 +1,29 @@
+{{ $label := printf "%s: %s" .Values.mirroredServiceLabel.key ( quote .Values.mirroredServiceLabel.value ) }}
+{{- $namespace := .Release.Namespace }}
+{{- range .Values.clusterLinks }}
+---
+apiVersion: multicluster.linkerd.io/v1alpha1
+kind: Link
+metadata:
+  name: {{ .name }}
+  namespace: {{ $namespace }}
+{{- with .linkAnnotations }}
+  annotations:
+{{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  clusterCredentialsSecret: cluster-credentials-{{ .name }}
+  gatewayAddress: {{ .gatewayAddress }}
+  gatewayIdentity: linkerd-gateway.linkerd-multicluster.serviceaccount.identity.linkerd.cluster.local
+  gatewayPort: "4143"
+  probeSpec:
+    path: /ready
+    period: 3s
+    port: "4191"
+  selector:
+    matchLabels:
+{{- $label | nindent 6 }}
+  targetClusterDomain: cluster.local
+  targetClusterLinkerdNamespace: linkerd
+  targetClusterName: {{ .name }}
+{{- end }}

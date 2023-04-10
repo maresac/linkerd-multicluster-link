@@ -1,0 +1,17 @@
+{{- $namespace := .Release.Namespace }}
+{{- range .Values.clusterLinks }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: probe-gateway-{{ .name }}
+  namespace: {{ $namespace }}
+  labels:
+    mirror.linkerd.io/mirrored-gateway: "true"
+    mirror.linkerd.io/cluster-name: {{ .name }}
+spec:
+  ports:
+  - name: mc-probe
+    port: 4191
+    protocol: TCP
+{{- end }}

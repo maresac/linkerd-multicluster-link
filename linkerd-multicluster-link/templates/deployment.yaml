@@ -1,0 +1,43 @@
+{{- $namespace := .Release.Namespace }}
+{{- range .Values.clusterLinks }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    linkerd.io/extension: multicluster
+    linkerd.io/control-plane-component: service-mirror
+    mirror.linkerd.io/cluster-name: {{ .name }}
+  name: linkerd-service-mirror-{{ .name }}
+  namespace: {{ $namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      linkerd.io/control-plane-component: linkerd-service-mirror
+      mirror.linkerd.io/cluster-name: {{ .name }}
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        linkerd.io/control-plane-component: linkerd-service-mirror
+        mirror.linkerd.io/cluster-name: {{ .name }}
+    spec:
+      containers:
+      - args:
+        - service-mirror
+        - -log-level=info
+        - -event-requeue-limit=3
+        - -namespace={{ $namespace }}
+        - -enable-pprof=false
+        - {{ .name }}
+        image: cr.l5d.io/linkerd/controller:{{ $.Values.linkerdVersion }}
+        name: service-mirror
+        securityContext:
+          runAsUser: 2103
+        ports:
+        - containerPort: 9999
+          name: admin-http
+      serviceAccountName: linkerd-service-mirror-{{ .name }}
+{{- end }}
