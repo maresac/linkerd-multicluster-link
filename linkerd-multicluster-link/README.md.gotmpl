@@ -7,7 +7,7 @@ The chart is meant to be deployed in the source cluster, i.e. the cluster from w
 For each target link, the following values can be provided:
 
 * `name` of the cluster, which should identify it among all other clusters.
-* `gatewayAddress`: External IP of the target cluster's multicluster gateway service. If your Linkerd multicluster control plane is installed in the
+* `gatewayAddress`: External IP of the target cluster's multicluster gateway service. If your Linkerd multicluster control plane is installed in the 
 `linkerd-multicluster` namespace, you can find it here:
   ```
   kubectl -n linkerd-multicluster get svc linkerd-gateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}'
@@ -21,7 +21,7 @@ For each target link, the following values can be provided:
 
 Since the Linkerd Service Mirror in the source cluster needs access to the target clusters' k8s API, it needs kubeconfigs for the target clusters.
 These have to be provided through `Secret` resources before deploying this chart.
-The kubeconfigs can be copied from the output of the `linkerd multicluster link` command.
+The kubeconfigs can be copied from the output of the `linkerd multicluster link` command. 
 
 Here's an example on how to manually create a kubeconfig Secret for a `<target>` cluster:
 ```
@@ -35,11 +35,4 @@ linkerd --context $TARGET multicluster link --cluster-name $TARGET | \
   --type "mirror.linkerd.io/remote-kubeconfig" --from-file=kubeconfig=/dev/stdin
 ```
 
-## Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| clusterLinks | list | `[]` |  |
-| linkerdVersion | string | `"stable-2.12.4"` |  |
-| mirroredServiceLabel.key | string | `"mirror.linkerd.io/exported"` |  |
-| mirroredServiceLabel.value | string | `"true"` |  |
+{{ template "chart.valuesSection" . }}
